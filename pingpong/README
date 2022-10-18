@@ -22,7 +22,7 @@ due versioni UDP e TCP.
 Per compilare da shell lanciare "make" dalla directory che contiene il Makefile.
 Nelle directory sono anche presenti dei file CMakeList.txt, che permettono di compilare tramite CMake, o aprire il tutto come "progetto" di CLion (https://www.jetbrains.com/clion/).
 
-Client Ping TCP
+## Client Ping TCP
 
 Nella prima esercitazione si deve realizzare un processo client Ping TCP che si connette ad un server Pong in ascolto su una porta alta (>= 1024). 
 
@@ -39,8 +39,42 @@ In caso di errore, il server Pong risponde invece "ERROR\n" e chiude la connessi
 Dopo aver ricevuto la risposta OK, Ping invia il primo messaggio dati: una sequenza lunga quanto specificato nel messaggio di richiesta, formata da valori zero, che deve contenere all'inizio la stringa di caratteri "1\n". Pong si limita a restituirglielo il più rapidamente possibile. Ping calcola il RTT necessario perché il messaggio compia un percorso di "andata e ritorno", poi invia il secondo messaggio dati che inizia con la stringa "2\n", ecc., fino a completare il numero di tentativi concordato.
 
 
-Server Pong
+## Server Pong
 
 Per testare il vostro client/server, prima di averli completati entrambi e/o per vedere cosa ci si aspetta in output, potete usare i binari precompilati disponibili su aulaweb.
 
 Alternativamente, potete usare il pong-server che risponde alla porta 1491 dell'host webdev.dibris.unige.it
+
+## Client  UDP Ping
+
+Anche in questo caso il processo client UDP Ping si connette inizialmente a un server Pong in ascolto su una porta alta (>= 1024), mediante una connessione STREAM (TCP).
+
+Ping si connette al server nello stesso modo già implementato la settimana scorsa per la versione TCP e invia un primo messaggio contenente la stringa di caratteri "UDP " seguita dalla lunghezza dei messaggi (in byte) e dal numero di ripetizioni; la stringa è terminata dal carattere di terminazione di linea '\n'. Il server Pong, ricevuta e riconosciuta la stringa di richiesta, risponde "OK numport\n", dopo di che agisce come Pong secondo le modalità concordate. In caso di errore, il server Pong risponde invece "ERROR\n" e chiude la connessione.
+
+Dopo aver ricevuto la risposta OK, il client UDP Ping deve chiudere la connessione TCP, creare un nuovo socket di tipo DGRAM, e cominciare a inviare datagrammi UDP al server Pong sulla porta che il server ha precedentemente indicato. Anche in questo caso i datagrammi devono contenere in testa le stringhe di caratteri "1\n", "2\n", ecc. ad indicare il numero di invio fino a completare il numero di tentativi concordato.
+
+Una delle principali differenze rispetto al ping-pong TCP deriva dalla inaffidabilità del protocollo UDP: i datagrammi possono andare persi, e quindi occorre gestire un meccanismo di time-out sul client Ping per gestire le situazioni di mancanza di risposta. Si richiede di contare il numero totale di datagrammi persi e di effettuare un numero limitato di tentativi di ritrasmissione prima di desistere e passare allo scambio del datagramma successivo, in modo da garantire comunque la terminazione del programma. Nel caso di perdita di un datagramma si ritorna come valore di RTT il tempo effettivamente speso in attesa (>= time-out).
+
+Nell'archivio distribuito nella prima esercitazione trovate anche il file udp_ping.c, scheletro del processo  UDP Ping (da usare dopo aver completato la versione per TCP).
+
+Il client  UDP Ping, usando le funzioni per la gestione dei socket, deve:
+
+    Inizializzare una struttura dati di tipo addrinfo con le informazioni per la connessione: vedi funzione getaddrinfo() e i commenti alla sezione Strutture dati e funzioni di conversione (ricordandosi di disallocare le strutture dati dinamiche quando non servono più, vedi funzione freeaddrinfo()).
+    Creare un canale di comunicazione: vedi funzione socket().
+    Connettersi al server Pong: vedi funzione connect().
+    Leggere da argv[] la dimensione del messaggio che il client intende spedire e il numero di ripetizioni.
+    Preparare una richiesta di ping-pong scrivendo la stringa di caratteri "UDP " seguita dalla lunghezza dei messaggi (in byte) e dal numero di ripetizioni; la stringa è terminata dal carattere di terminazione di linea '\n'.
+    Scrivere la stringa di richiesta sul socket: vedi funzione write().
+    Leggere dal socket la risposta restituita dal server Pong: vedi funzione read().
+
+    [Nota: da qui inizia la parte diversa rispetto al client TCP]
+    Se il server risponde "OK numport\n" proseguire, altrimenti (risposta "ERROR\n") segnalare un errore.
+    In caso di risposta positiva, il client Ping deve leggere il numero di porta sulla quale Pong si è messo in attesa di messaggi e chiudere la connessione TCP instaurata per negoziare il tipo di connessione successiva
+    A questo punto, Pong deve creare un socket di tipo DGRAM e usarlo per inviare la sequenza di datagrammi concordata verso il server, usando il numero di porta alta appena ricevuto. Va quindi inizializzata una struttura dati addrinfo con gli opportuni parametri per connessioni UDP (come si può vedere nella funzione prepare_udp_socket() nello scheletro del programma).
+    Sul nuovo socket devono essere inviati i messaggi concordati, ciascun messaggio deve contenere in testa una stringa di caratteri che rappresenta il numero di invio (cominciando da "1\n"): vedi funzione doPing().
+    Al termine, si deve chiudere il socket: vedi funzione close().
+
+
+## Il server Pong
+
+Il server Pong è lo stesso dell'altra volta in ascolto sulla macchina webdev.dibris.unige.it sulla porta 1491. In alternativa potete anche usare gli eseguibili distribuiti nei file di supporto e lavorare in locale.
