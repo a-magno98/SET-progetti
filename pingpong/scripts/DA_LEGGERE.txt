@@ -1,0 +1,1 @@
+Se il file bash ha problemi di permesso, utilizzare il comando chmod u+rwx BL_plot.bash
