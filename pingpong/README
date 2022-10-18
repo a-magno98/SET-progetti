@@ -21,3 +21,26 @@ due versioni UDP e TCP.
 
 Per compilare da shell lanciare "make" dalla directory che contiene il Makefile.
 Nelle directory sono anche presenti dei file CMakeList.txt, che permettono di compilare tramite CMake, o aprire il tutto come "progetto" di CLion (https://www.jetbrains.com/clion/).
+
+Client Ping TCP
+
+Nella prima esercitazione si deve realizzare un processo client Ping TCP che si connette ad un server Pong in ascolto su una porta alta (>= 1024). 
+
+Troverete dei sorgenti INCOMPLETI nell'archivio TGZ su aulaweb; dovrete riempire le parti marcate con "TO BE DONE" per ottenere client/server funzionanti. Anche se l'archivio contiene già la parte UDP, per questa volta considerate solo il TCP.
+
+Il processo Ping si connette al server Pong e invia un messaggio di richiesta contenente la stringa di caratteri "TCP " seguita dalla lunghezza dei messaggi (in byte) e dal numero di ripetizioni; la stringa è terminata dal carattere di terminazione di linea '\n'.
+
+Es. "TCP 64 280\n"
+
+Il server Pong, ricevuta e riconosciuta la stringa di richiesta, risponde "OK\n", dopo di che agisce come Pong secondo le modalità concordate.
+
+In caso di errore, il server Pong risponde invece "ERROR\n" e chiude la connessione.
+
+Dopo aver ricevuto la risposta OK, Ping invia il primo messaggio dati: una sequenza lunga quanto specificato nel messaggio di richiesta, formata da valori zero, che deve contenere all'inizio la stringa di caratteri "1\n". Pong si limita a restituirglielo il più rapidamente possibile. Ping calcola il RTT necessario perché il messaggio compia un percorso di "andata e ritorno", poi invia il secondo messaggio dati che inizia con la stringa "2\n", ecc., fino a completare il numero di tentativi concordato.
+
+
+Server Pong
+
+Per testare il vostro client/server, prima di averli completati entrambi e/o per vedere cosa ci si aspetta in output, potete usare i binari precompilati disponibili su aulaweb.
+
+Alternativamente, potete usare il pong-server che risponde alla porta 1491 dell'host webdev.dibris.unige.it
