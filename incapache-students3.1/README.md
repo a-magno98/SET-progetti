@@ -1,4 +1,4 @@
-INCAPACHE (Is Not Comparable to APACHE)
+## INCAPACHE (Is Not Comparable to APACHE)
 N.B. il nome si pronuncia "incapaci" ;-)
 
 Programma sviluppato a supporto del laboratorio di
@@ -52,4 +52,17 @@ bin/incapache www-root 80
 Il sever usa il meccanismo dei Cookies per assegnare un identificatore
 a ogni utente che lo contatta, e successivamente conta il numero di
 richieste provenienti dallo stesso client.
+
+## Laboratorio incApache
+Nella terza e ultima esercitazione realizziamo un web server che vuole imitare il web server Apache ma riesce a fare molto meno. Per questo motivo lo chiameremo incApache (incApache is not comparable to Apache, pronunciato all'americana come "incapaci").
+incApache riconosce solo i metodi HEAD e GET, non è in grado di comprendere il metodo POST.
+
+## Laboratorio IncApache: parte opzionale
+### HTTP/1.1 con pipeline
+
+Eccoci arrivati alla parte opzionale di incApache: si consiglia di procedere con questa parte solo dopo aver ottenuto il perfetto funzionamento della versione 3.0, anche in caso di apertura di connessioni multiple.
+
+Nella rete odierna un servizio online in grado di gestire una richiesta alla volta non avrebbe alcun senso, si tratterebbe di un servizio destinato a fallimento certo. Per questo motivo già incApache 3.0 adotta la tecnica dei thread multipli, ciascuno dedicato a rispondere a una connessione diversa. Nella versione 3.1 incApache, oltre a usare i thread per gestire connessioni multiple (cioè richieste in arrivo da più client), prova anche a sfruttare i thread per aumentare la propria velocità di risposta nel caso in cui il client gestisca le connessioni in una modalità detta di pipeline.
+
+HTTP/1.1 allows multiple HTTP requests to be written out to a socket together without waiting for the corresponding responses. The requestor then waits for the responses to arrive in the order in which they were requested. The act of pipelining the requests can result in a dramatic improvement in page loading times, especially over high latency connections.
 
