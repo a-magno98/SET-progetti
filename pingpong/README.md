@@ -98,7 +98,7 @@ echo "You have selected a $protocol socket"
 E' anche possibile passare dei parametri a uno script (si devono elencare dopo il nome dello script). Il primo parametro è indicato con $1, il secondo parametro con $2, ecc. Si può inoltre controllare il numero di parametri passati allo script, come descritto nel frammento seguente.
 
 #! /bin/bash
-# Expects MaxUDPsize and MaxTCPsize as parameters
+#Expects MaxUDPsize and MaxTCPsize as parameters
 if [[ $# != 2 ]] ; then printf "\nError: MaxUDPsize and MaxTCPsize expected as parameters\n\n" ; exit 1; fi
 
 Notate le analogie con i parametri argc e argv del main di un programma C. Notate anche l'analogia del comando printf con l'omologa funzione del C. Queste analogie non sono ovviamente casuali, ma derivano dalla lunga storia che ha portato alla attuale definizione di bash (derivante sia dalla shell di Bourne che da quella originariamente chiamata "csh", che incorporava parecchi costrutti del linguaggio C). Da questi esempi si dovrebbe intuire quindi che uno script può implementare algoritmi quasi altrettanto complessi di quelli implementabili in C.
@@ -139,7 +139,7 @@ Per vedere i costrutti che si possono usare in uno script bash potete usare la p
 
 Per la generazione dei grafici mediante gnuplot vi rimandiamo alla documentazione presente in rete, partendo per esempio da un sito ufficiale.
 
-Banda, Latenza, Throughput e Delay
+## Banda, Latenza, Throughput e Delay
 
 Il termine banda indica la massima velocità di trasmissione per il trasferimento di grandi quantità di dati attraverso un canale di comunicazione. Si misura in bit al secondo, abbreviato in bit/s o b/s o bps (bitrate), oppure in byte al secondo, abbreviato in Byte/s o B/s o Bps.
 
@@ -169,10 +169,23 @@ B= \frac{N_2-N_1}{D(N_2)-D(N_1)}
 
 L_0 = \frac{D(N_1)*N_2 - D(N_2)*N_1}{N_2-N_1}
 
-Task da svolgere per la terza parte del laboratorio
+## Task da svolgere per la terza parte del laboratorio
 
 Leggete il file README per capire come lanciare il primo script che genera il  Makefile che viene salvato nella directory data.
 
 Dopo aver familiarizzato con gli script bash nella directory scripts e con i file di output nella directory data dovete preparare uno script bash che, a partire dai file di output creati nella directory data, permetta di mettere a confronto l'andamento del throughput con la curva che si ottiene applicando il modello Banda-Latenza.
 
-Le due immagini seguenti descrivono il risultato che deve essere prodotto dallo script nel caso di TCP e UDP. Sull'asse delle x si leggono le dimensioni dei messaggi, sull'asse delle y i valori di throughput effettivamente misurati confontati con i valori ottenuti dal modello (dopo averne stimato i parametri L0 e B).
+Lo script da realizzare dovrà pertanto:
+
+    Leggere dal file throughput.dat (generato mediante una interazione con il server Pong su webdev.disi.unige.it) la prima e l'ultima riga ed estrarre i valori N1 e N2, T(N1) e T(N2). Si vedano i comandi head e tail per leggere le righe dal file.
+
+    Ricavare i parametri B e L0 che caratterizzano la formula del modello Banda-Latenza.
+    Attenzione: per il calcolo dei valori in floating point non si può usare direttamente bash (che definisce solo variabili di tipo intero o di tipo stringa). Si suggerisce quindi di lanciare l'applicazione bc (vedi man bc) che permette di effettuare calcoli in virgola mobile con precisione arbitrariamente predefinita (e di effettuare calcoli con una precisione di almeno 9 cifre decimali).
+
+    Realizzare due grafici (uno per TCP e uno per UDP) come quelli riportati nelle due figure; dalla documentazione di gnuplot (oppure dagli script ...) ricavate i comandi per disegnare curve in scala logaritmica.
+    Suggerimento: il modo più semplice per rappresentare la formula Banda-Latenza in gnuplot dovrebbe essere mediante la definizione di una funzione, per esempio:
+
+     lbf(x) = x / ( $myL + x / $myB )
+     plot lbf(x) title "Latency-Bandwidth model with L=$myL and B=$myB" with linespoints
+
+Spunto di riflessione: cosa succede se, a causa di errori di misura, l'ultima riga non corrisponde al valore più grande di throughput misurato? Come si potrebbe correggere la situazione?
