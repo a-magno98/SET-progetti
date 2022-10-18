@@ -55,7 +55,9 @@ richieste provenienti dallo stesso client.
 
 ## Laboratorio incApache
 Nella terza e ultima esercitazione realizziamo un web server che vuole imitare il web server Apache ma riesce a fare molto meno. Per questo motivo lo chiameremo incApache (incApache is not comparable to Apache, pronunciato all'americana come "incapaci").
-incApache riconosce solo i metodi HEAD e GET, non è in grado di comprendere il metodo POST.
+IncApache riconosce solo i metodi HEAD e GET, non è in grado di comprendere il metodo POST, il quale usa thread multipli per gestire più connessioni contemporanee da parte di client (browser) diversi. Per il momento il vantaggio dell'uso dei pthread invece di processi multipli creati con fork() è solo una (modesta) riduzione della quantità di risorse utilizzate a livello di sistema. Tuttavia l'uso dei thread ci consentirà successivamente di implementare le estensioni richieste per la versione 2.1 del server.
+
+Nella versione 2.0 il processo che gestisce le richieste e risposte HTTP lancia un numero predeterminato di thread indipendenti nella fase di inizializzazione, e questi thread rimangono attivi fino alla terminazione del processo stesso (che può essere ottenuta solo da shell, mandando un SIGKILL). Ogni thread accetta una richiesta di connessione, interpreta la richiesta HTTP, manda la corrispondente risposta HTTP, chiude la connessione e torna ad accettare una nuova connessione. Poiché però tutti i thread accettano connessioni dallo stesso socket in modalità listen(), occorre prevenire corse critiche mediante l'uso delle primitive: pthread_mutex_lock() e pthread_mutex_unlock().
 
 ## Laboratorio IncApache: parte opzionale
 ### HTTP/1.1 con pipeline
